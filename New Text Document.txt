@@ -1,0 +1,27 @@
+Ce vreau sa implementez de la licenta?
+-un sistem inteligent de incarcare a bateriilor de pe macheta unei masini
+-sistemul creat trebuie sa incarce bateria la o putere decenta (20W sau mai mult) in asa fel incat sa nu afecteze lifespan-ul bateriei
+-sistemul trebuie sa aiba functii de protectie built-in precum pentru overvolatge/overcurrent/undervoltage protection.
+-incarcarea ar trebui realizata de la o sursa de curent prin intermediul unui port USB (de preferat).  
+
+Ce features doresc sa aiba acest sistem?
+-control de voltaj, amperaj, timp de incarcare, temperatura, mod de incarcare
+-dupa 80%, incarcarea trebuie sa fie lenta
+-un model de invatare AI antrenat pe datele preluate care trebuie sa anticipeze folosirea device-ului
+-afisare acestor informatii intr-un UI
+
+Tehnologii hardware folosite:
+-Arduino Uno/Nano
+-Regulator de incarcare a bateriei
+-INA219 - extragere informatii in timp real (voltaj, curent)
+-TP4056 in combinatie cu un BMS de tip 4S, avand in vedere ca am 4 baterii de incarcat (?)
+
+Tehnologii software folosite:
+-React-native - partea de aplicatie
+-Arduino IDE - partea de coding embedded
+
+Intrebari:
+-Ar fi okay sa folosesc un modul TP4056?
+
+
+
