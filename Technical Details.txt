@@ -1,0 +1,28 @@
+https://www.ti.com/lit/ds/symlink/ina219.pdf
+https://github.com/adafruit/Adafruit_INA219/blob/master/Adafruit_INA219.cpp
+https://github.com/adafruit/Adafruit_BusIO/blob/master/Adafruit_BusIO_Register.cpp
+
+Ce este un System Real-Time? Ce este specific pentru un astfel de sistem?
+
+
+Ce ar trebui sa urmaresc la un MOSFET?
+	-Drain-Source Breakdown Voltage - reprezinta tensiunea pe care MOSFET-ul poate sa o suporte cand este oprit. (30V)
+Valoare cel putin egala cu cea a sursei de tensiune.
+	-Gate-Source Threshold voltage - tensiunea necesara pentru a porni 100% MOSFET-ul	
+	-Continious Drain Current - currentul maxim pe care poate sa-l admita cand este pornit (5A)
+	-Drain Source-Resistance - rezistenta interna a MOSFET-ului 
+	-Drain Leakage Current - currentul care se scurge prin rezistor care si atunci cand este inchis Trebuie sa fie cat mai mic.
+
+
+Despre tranzistori:
+	-se comporta ca un intrerupator sau ca si un amplificator de semnale
+
+Baterii NiMH:
+	-nu pot livra cantitati mari de curent
+	-mult mai rezistente la scurt-circuit
+	-nu sunt foarte sensibile la supraincarcarii sau supradescarcari de current (sunt mai sigure)
+	-sunt cele mai slabe din punct de vedere raport dimensiune-energie livrata
+	-la incrcare ai nevoie doar de short-circuit and undevoltage protection
+	-metode de incarcare: Trickle Charge - curent constant cu o valoare de 1/20 din capacitatea bateriei
+	
+	
