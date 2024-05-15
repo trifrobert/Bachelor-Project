@@ -1,21 +1,23 @@
 #include <Wire.h>
 #include <Adafruit_INA219.h>
 
-
-const int NUM_MODULES = 3;
-int vIn = A0;  
-int PWM = 3;
-int pwm = 0;
+const int NUM_MODULES = 1;
+const int vIn = 35;   //corresponds to GPIO34
+const int PWM = 32;   //corresponds to GPIO35
+int pwm = 256;    //pwm initial value
+const int pwm_channel = 0;
+const int freqency = 1000;   //Hz
+const int resolution = 8;
 
 Adafruit_INA219 modules[NUM_MODULES] = {
   Adafruit_INA219(0x40)
   // Adafruit_INA219(0x41)
 };
 
-float get_input_voltage(int n_samples){
+float get_input_voltage(int n_samples, float operating_v){
   float voltage = 0;
   for(int i=0; i < n_samples; i++){
-    voltage += (analogRead(vIn) * (5.0 / 1023.0) * 6.0);     
+    voltage += analogRead(vIn) * operating_v / 1023.0 * (10.0 + 1.0)/1.0;     
   }
   voltage = voltage/n_samples;
   return(voltage);
@@ -23,9 +25,8 @@ float get_input_voltage(int n_samples){
 
 void setup() {
 
-  pinMode(PWM, OUTPUT); 
-  digitalWrite(PWM,HIGH); 
-  TCCR2B = TCCR2B & B11111000 | B00000001;    // pin 3 and 11 PWM frequency of 31372.55 Hz
+  ledcSetup(pwm_channel, freqency, resolution);
+  ledcAttachPin(PWM, pwm_channel);
   
   Serial.begin(115200);
   while (!Serial) {
@@ -48,23 +49,23 @@ void setup() {
 
 void loop() {  
 
-  float expected_value = 0.5;
+  float expected_value = 1.81;
 
-  float input = get_input_voltage(10);
+  float input = get_input_voltage(10, 5.0);
   float iBatt = modules[0].getCurrent_mA();
   float vBatt = modules[0].getBusVoltage_V() + (modules[0].getShuntVoltage_mV() / 1000);
 
   if (expected_value > vBatt){
     pwm = pwm-1;
-    pwm = constrain(pwm, 1, 254);
+    pwm = constrain(pwm, 0, 254);
   }
 
   if (expected_value < vBatt){
     pwm = pwm+1;
-    pwm = constrain(pwm, 1, 254);
+    pwm = constrain(pwm, 0, 254);
   }
 
-  analogWrite(PWM,pwm);
+  ledcWrite(pwm_channel,pwm);
 
   Serial.print("PWM Value: ");
   Serial.println(pwm);
