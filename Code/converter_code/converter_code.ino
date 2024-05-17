@@ -2,11 +2,11 @@
 #include <Adafruit_INA219.h>
 
 const int NUM_MODULES = 1;
-const int vIn = 35;   //corresponds to GPIO34
-const int PWM = 32;   //corresponds to GPIO35
+const int vIn = 35;   //corresponds to GPIO35
+const int PWM = 32;   //corresponds to GPIO32
 int pwm = 256;    //pwm initial value
 const int pwm_channel = 0;
-const int freqency = 1000;   //Hz
+const int freqency = 10000;   //Hz
 const int resolution = 8;
 
 Adafruit_INA219 modules[NUM_MODULES] = {
@@ -14,10 +14,10 @@ Adafruit_INA219 modules[NUM_MODULES] = {
   // Adafruit_INA219(0x41)
 };
 
-float get_input_voltage(int n_samples, float operating_v){
-  float voltage = 0;
+float get_input_voltage(int n_samples, float peak_v){
+  float voltage = 0.0;
   for(int i=0; i < n_samples; i++){
-    voltage += analogRead(vIn) * operating_v / 1023.0 * (10.0 + 1.0)/1.0;     
+    voltage += analogRead(vIn) * peak_v / 4095.0;   
   }
   voltage = voltage/n_samples;
   return(voltage);
@@ -49,9 +49,9 @@ void setup() {
 
 void loop() {  
 
-  float expected_value = 1.81;
+  float expected_value = 10;
 
-  float input = get_input_voltage(10, 5.0);
+  float input = get_input_voltage(10, 10);
   float iBatt = modules[0].getCurrent_mA();
   float vBatt = modules[0].getBusVoltage_V() + (modules[0].getShuntVoltage_mV() / 1000);
 
