@@ -11,6 +11,9 @@ const MainScreen = () => {
   const onControlsPressed = () => {
     navigation.navigate('ControlScreen');
   }
+  const onStatusPressed = () => {
+    navigation.navigate('StatusScreen');
+  }
 
   return (
     <View style={styles.container}>
@@ -27,18 +30,19 @@ const MainScreen = () => {
               text="Controls"
               onPress={onControlsPressed}
               type="PRIMARY"
-              bgColor="white"
+              bgColor="rgba(255, 255, 255, 0.9)"
               fgColor="black"
-              width="80%" // Adjusted width to fill the entire container
-              height="10%" // Adjusted height to take 50% of the container height
+              width="80%"
+              height={55}
             />
             <CustomButton
               text="Status"
+              onPress={onStatusPressed}
               type="PRIMARY"
-              bgColor="white"
+              bgColor="rgba(255, 255, 255, 0.9)"
               fgColor="black"
-              width="80%" // Adjusted width to fill the entire container
-              height="10%" // Adjusted height to take 50% of the container height
+              width="80%"
+              height={55}
             />
           </View>
         </View>
@@ -60,13 +64,13 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent overlay
     justifyContent: 'center',
     alignItems: 'center',
   },
   titleContainer: {
     alignItems: "center",
-    justifyContent: "center", // Added to center the title vertically
+    justifyContent: "center",
     flex: 4, // 40% of the screen
     width: "100%",
   },

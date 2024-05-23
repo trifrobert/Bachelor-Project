@@ -1,7 +1,15 @@
 import { StyleSheet, View, Image, TouchableOpacity } from 'react-native';
+import CustomButton from '../../components/CustomButton/CustomButton';
+import { useNavigation } from '@react-navigation/native'
 import React from 'react';
 
 const ControlScreen = () => {
+
+  const navigation = useNavigation();
+  const onBackPressed = () => {
+    navigation.navigate('MainScreen');
+  }
+
   const handlePress = (direction) => {
     // Handle button press for each direction
     console.log(`Pressed ${direction} button`);
@@ -43,6 +51,15 @@ const ControlScreen = () => {
             <View style={styles.emptySpace} />
           </View>
         </View>
+        <CustomButton
+            text="Back"
+            onPress={onBackPressed}
+            type="PRIMARY"
+            bgColor="rgba(255, 255, 255, 0.9)"
+            fgColor="black"
+            width="80%"
+            height={55}
+        />
       </View>
     </View>
   );
@@ -60,7 +77,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.75)', // Semi-transparent overlay
     justifyContent: 'center',
     alignItems: 'center',
   },
