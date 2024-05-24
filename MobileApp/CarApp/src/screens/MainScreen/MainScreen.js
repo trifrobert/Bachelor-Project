@@ -1,7 +1,5 @@
-import { StyleSheet, Text, View, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, PermissionsAndroid } from 'react-native';
 import { useNavigation } from '@react-navigation/native'
-import React from 'react';
-
 import CustomButton from '../../components/CustomButton/CustomButton';
 
 const MainScreen = () => {
