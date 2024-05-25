@@ -2,11 +2,9 @@ import { StyleSheet, View, Image, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import React, { useEffect, useState } from 'react';
-
 import { db, ref, onValue } from "../../../firebase";
 
 const StatusScreen = () => {
-  
   const [inputVoltage, setInputVoltage] = useState(0);
   const [iBatt, setIBatt] = useState(0);
   const [vBatt, setVBatt] = useState(0);
@@ -15,14 +13,17 @@ const StatusScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const data = ref(db);
+    const data = ref(db, 'sensors');
 
     onValue(data, (snapshot) => {
-      setInputVoltage(parseFloat(snapshot.val().input_voltage).toFixed(2));
-      setIBatt(parseFloat(snapshot.val().iBatt).toFixed(2));
-      setVBatt(parseFloat(snapshot.val().vBatt).toFixed(2));
-      setTempBatt1(parseFloat(snapshot.val().tBatt1).toFixed(2));
-      setTempBatt2(parseFloat(snapshot.val().tBatt2).toFixed(2));
+      const sensorsData = snapshot.val();
+      if (sensorsData) {
+        setInputVoltage(parseFloat(sensorsData.input_voltage).toFixed(2));
+        setIBatt(parseFloat(sensorsData.iBatt).toFixed(2));
+        setVBatt(parseFloat(sensorsData.vBatt).toFixed(2));
+        setTempBatt1(parseFloat(sensorsData.tBatt1).toFixed(2));
+        setTempBatt2(parseFloat(sensorsData.tBatt2).toFixed(2));
+      }
     });
   }, [db]);
 
@@ -32,13 +33,13 @@ const StatusScreen = () => {
   
   return (
     <View style={styles.container}>
-      <Image source={
-        require('../../../assets/images/background.jpg')} 
+      <Image 
+        source={require('../../../assets/images/background.jpg')} 
         style={styles.backgroundImage} 
       />
       <View style={styles.overlay}>
         <Text style={styles.text}>Input Voltage: {inputVoltage} V; Battery Current: {iBatt} A; Battery Voltage: {vBatt} V</Text>
-        <Text style={styles.text}>Battery 1 temperature: {tempBatt1} V; Battery 2 temperature: {tempBatt2} </Text>
+        <Text style={styles.text}>Battery 1 Temperature: {tempBatt1} °C; Battery 2 Temperature: {tempBatt2} °C</Text>
         <CustomButton
           text="Back"
           onPress={onBackPressed}
@@ -47,8 +48,8 @@ const StatusScreen = () => {
           fgColor="black"
           width="80%"
           height={55}
-          />
-        </View>
+        />
+      </View>
     </View>
   )
 }
@@ -61,17 +62,18 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    resizeMode: 'cover', // Adjust the resizeMode as needed
+    resizeMode: 'cover',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.75)', // Semi-transparent overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   text: {
-    color: "white",
-  }
+    color: 'white',
+    marginBottom: 10, // Add some spacing between text elements
+  },
 });
 
 export default StatusScreen;
