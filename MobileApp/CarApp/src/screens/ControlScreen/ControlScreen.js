@@ -100,7 +100,7 @@ const ControlScreen = () => {
           text="Back"
           onPress={onBackPressed}
           type="PRIMARY"
-          bgColor="rgba(255, 255, 255, 0.9)"
+          bgColor="rgba(255, 255, 255, 0.8)"
           fgColor="black"
           width="80%"
           height={55}

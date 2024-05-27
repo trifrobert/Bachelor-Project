@@ -189,6 +189,8 @@ void sensorTask(void *parameters){
     iBatt = ina_219.getCurrent_mA();
     vBatt = ina_219.getBusVoltage_V() + (ina_219.getShuntVoltage_mV() / 1000);
 
+    sensor1.requestTemperatures();
+    sensor2.requestTemperatures();
     temperature_batt1 = sensor1.getTempCByIndex(0);
     temperature_batt2 = sensor2.getTempCByIndex(0);
 
@@ -264,6 +266,20 @@ void setup() {
   ina_219.setCalibration_32V_2A();
   Serial.println("Measuring voltage and current with INA219 module...");
 
+  Serial.println("Scanning for sensors...");
+  for (int i = 0; i < sensor2.getDeviceCount(); i++) {
+    DeviceAddress tempDeviceAddress;
+    if (sensor1.getAddress(tempDeviceAddress, i)) {
+      Serial.print("Sensor ");
+      Serial.print(i);
+      Serial.print(" Address: ");
+      printAddress(tempDeviceAddress);
+      Serial.println();
+    } else {
+      Serial.println("No more addresses.");
+    }
+  }
+
   xTaskCreatePinnedToCore(
     converterTask,      // Task function
     "PWM Control Task", // Name of the task
@@ -293,6 +309,13 @@ void setup() {
     &firebaseTaskHandle,// Task handle
     1                  // Core where the task should run
   );
+}
+
+void printAddress(DeviceAddress deviceAddress) {
+  for (uint8_t i = 0; i < 8; i++) {
+    if (deviceAddress[i] < 16) Serial.print("0");
+    Serial.print(deviceAddress[i], HEX);
+  }
 }
 
 void loop(void){

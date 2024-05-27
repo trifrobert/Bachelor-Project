@@ -19,30 +19,30 @@ const MainScreen = () => {
         source={require('../../../assets/images/background.jpg')}
         style={styles.backgroundImage}
       >
-        <View style={styles.overlay}>
-          <View style={styles.titleContainer}>
-            <Text style={styles.title}>Your Electric Vehicle</Text>
-          </View>
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              text="Controls"
-              onPress={onControlsPressed}
-              type="PRIMARY"
-              bgColor="rgba(255, 255, 255, 0.9)"
-              fgColor="black"
-              width="80%"
-              height={55}
-            />
-            <CustomButton
-              text="Status"
-              onPress={onStatusPressed}
-              type="PRIMARY"
-              bgColor="rgba(255, 255, 255, 0.9)"
-              fgColor="black"
-              width="80%"
-              height={55}
-            />
-          </View>
+      <View style={styles.overlay}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Your Electric Vehicle</Text>
+        </View>
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            text="Controls"
+            onPress={onControlsPressed}
+            type="PRIMARY"
+            bgColor="rgba(255, 255, 255, 0.9)"
+            fgColor="black"
+            width="80%"
+            height={55}
+          />
+          <CustomButton
+            text="Status"
+            onPress={onStatusPressed}
+            type="PRIMARY"
+            bgColor="rgba(255, 255, 255, 0.9)"
+            fgColor="black"
+            width="80%"
+            height={55}
+          />
+        </View>
         </View>
       </ImageBackground>
     </View>
@@ -57,33 +57,30 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    resizeMode: 'cover',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent overlay
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
-    alignItems: 'center',
   },
   titleContainer: {
+    marginTop:40,
     alignItems: "center",
     justifyContent: "center",
-    flex: 4, // 40% of the screen
     width: "100%",
+    height:"35%"
   },
   buttonContainer: {
-    // backgroundColor:"white",
-    alignItems:"center",
-    flex: 6, // 60% of the screen
+    alignItems: "center",
+    justifyContent: "flex-start",
     width: "100%",
+    height:"60%"
   },
   title: {
     fontSize: 35,
-    paddingTop:"20%",
     fontWeight: "bold",
     color: "white",
-    textAlign: "center",
   },
 });
 

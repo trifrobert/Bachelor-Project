@@ -21,7 +21,7 @@ const CustomButton = ({
       style={[
         styles[`container_${type}`], 
         backgroundColor,
-        marginVertical ? { marginVertical: marginVertical } : { marginVertical: 12 },
+        marginVertical ? { marginVertical: marginVertical } : { marginVertical: 10 },
         marginHorizontal ? { marginHorizontal: marginHorizontal } : { marginHorizontal: 0 },
         borderColor ? { borderColor: borderColor } : { borderColor: "transparent" },
         width ? { width: width } : { width: 'auto' },
