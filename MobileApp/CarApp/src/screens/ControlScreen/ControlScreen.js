@@ -1,9 +1,10 @@
-import { StyleSheet, View, Image, Text, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Image, Text } from 'react-native';
+import Joystick from '../../components/Joystick';
 import CustomButton from '../../components/CustomButton/CustomButton';
 import { useNavigation } from '@react-navigation/native';
-import React, { useState, useEffect } from 'react';
-import { db } from '../../../firebase'; // Import your Firebase configuration
-import { ref, set } from 'firebase/database'; // Ensure you import 'set' from 'firebase/database'
+import { db } from '../../../firebase';
+import { ref, set } from 'firebase/database'; 
 
 const ControlScreen = () => {
   const navigation = useNavigation();
@@ -16,8 +17,13 @@ const ControlScreen = () => {
     right: 0,
   });
 
+  // State for suggestive messages
+  const [message, setMessage] = useState('Use the joystick in order to move the car');
+
+  // State to track whether the joystick has been used
+  const [joystickUsed, setJoystickUsed] = useState(false);
+
   useEffect(() => {
-    // Log the current control state
     console.log('controlState changed:', controlState);
 
     // Update the database whenever controlState changes
@@ -25,20 +31,37 @@ const ControlScreen = () => {
       console.log(`Updating control_${key} to`, controlState[key]);
       set(ref(db, `controls/control_${key}`), controlState[key]);
     });
-  }, [controlState]);
+
+    // Update suggestive message based on controlState
+    const messages = [];
+    if (controlState.up) messages.push('Up');
+    if (controlState.down) messages.push('Down');
+    if (controlState.left) messages.push('Left');
+    if (controlState.right) messages.push('Right');
+
+    // If the joystick has been used, remove the initial message
+    if (joystickUsed) {
+      setMessage(messages.join('-'));
+    }
+  }, [controlState, joystickUsed]);
 
   const onBackPressed = () => {
     navigation.navigate('MainScreen');
   };
 
-  const handlePressIn = (direction) => {
-    console.log(`Press in: ${direction}`);
-    setControlState((prevState) => ({ ...prevState, [direction]: 1 }));
-  };
+  const handleJoystickMove = ({ x, y }) => {
+    const threshold = 0.5;
 
-  const handlePressOut = (direction) => {
-    console.log(`Press out: ${direction}`);
-    setControlState((prevState) => ({ ...prevState, [direction]: 0 }));
+    const newControlState = {
+      up: y > threshold ? 1 : 0,
+      down: y < -threshold ? 1 : 0,
+      left: x < -threshold ? 1 : 0,
+      right: x > threshold ? 1 : 0,
+    };
+
+    setControlState(newControlState);
+    setJoystickUsed(true); // Set joystickUsed to true when joystick is moved
+    setMessage(''); // Clear initial message when joystick is moved
   };
 
   return (
@@ -47,54 +70,12 @@ const ControlScreen = () => {
 
       <View style={styles.overlay}>
         <View style={styles.controls}>
-          {/* First Row: Up Button */}
-          <View style={styles.row}>
-            <View style={styles.emptySpace} />
-            <View
-              style={[styles.button, styles.upButton]}
-              onStartShouldSetResponder={() => true}
-              onResponderGrant={() => handlePressIn('up')}
-              onResponderRelease={() => handlePressOut('up')}
-            >
-              <Image source={require('../../../assets/images/arrow.png')} style={styles.buttonImage} />
-            </View>
-            <View style={styles.emptySpace} />
-          </View>
-
-          {/* Second Row: Left and Right Buttons */}
-          <View style={styles.row}>
-            <View
-              style={[styles.button, styles.leftButton]}
-              onStartShouldSetResponder={() => true}
-              onResponderGrant={() => handlePressIn('left')}
-              onResponderRelease={() => handlePressOut('left')}
-            >
-              <Image source={require('../../../assets/images/arrow.png')} style={styles.buttonImage} />
-            </View>
-            <View style={styles.emptySpace} />
-            <View
-              style={[styles.button, styles.rightButton]}
-              onStartShouldSetResponder={() => true}
-              onResponderGrant={() => handlePressIn('right')}
-              onResponderRelease={() => handlePressOut('right')}
-            >
-              <Image source={require('../../../assets/images/arrow.png')} style={styles.buttonImage} />
-            </View>
-          </View>
-
-          {/* Third Row: Down Button */}
-          <View style={styles.row}>
-            <View style={styles.emptySpace} />
-            <View
-              style={[styles.button, styles.downButton]}
-              onStartShouldSetResponder={() => true}
-              onResponderGrant={() => handlePressIn('down')}
-              onResponderRelease={() => handlePressOut('down')}
-            >
-              <Image source={require('../../../assets/images/arrow.png')} style={styles.buttonImage} />
-            </View>
-            <View style={styles.emptySpace} />
-          </View>
+          <Joystick
+            size={150}
+            onMove={handleJoystickMove}
+            onStop={() => setControlState({ up: 0, down: 0, left: 0, right: 0 })}
+          />
+          <Text style={styles.message}>{message}</Text>
         </View>
         <CustomButton
           text="Back"
@@ -130,41 +111,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '80%',
     justifyContent: 'center',
+    alignItems: 'center', // Center the joystick
   },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 20, // Adjust as needed
-  },
-  button: {
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Semi-transparent black background
-    height: 100, // Adjust as needed
-    width: 100, // Adjust as needed
-    margin: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 50, // Makes the buttons circular
-  },
-  buttonImage: {
-    width: 40, // Adjust width and height as needed
-    height: 40,
-    tintColor: 'white', // Make the arrow white
-  },
-  emptySpace: {
-    flex: 1, // Takes up the remaining space in the row
-  },
-  upButton: {
-    transform: [{ rotate: '270deg' }], // Rotate the image for up button
-  },
-  leftButton: {
-    transform: [{ rotate: '180deg' }], // Rotate the image for left button
-  },
-  rightButton: {
-    transform: [{ rotate: '0deg' }], // Rotate the image for right button
-  },
-  downButton: {
-    transform: [{ rotate: '90deg' }], // Rotate the image for down button
+  message: {
+    marginTop: 20,
+    fontSize: 18,
+    color: 'white',
+    textAlign: 'center',
   },
 });
 
