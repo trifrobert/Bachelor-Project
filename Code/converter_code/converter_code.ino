@@ -8,8 +8,7 @@
 #include "addons/TokenHelper.h"
 #include "addons/RTDBHelper.h"
 
-#define temperature_s1 34   //pin for the first temperature sensor; corresponds to GPI34
-#define temperature_s2 35   //pin for the second temperature sensor; corresponds to GPIO35
+#define ONE_WIRE_BUS 32   //pin for the second temperature sensor; corresponds to GPIO35
 
 #define FIREBASE_HOST "https://esp32-car-data-default-rtdb.firebaseio.com/"
 #define FIREBASE_AUTH "AIzaSyBJsdj8P2ekGtWMlMJq_197awK2xiOnvUE"
@@ -26,16 +25,20 @@ bool signupOK = false;
 unsigned long lastSendTime = 0;
 
 Adafruit_INA219 ina_219;  // instance of current module
-float expected_voltage = 2;   // Volts
 float input_voltage = 0;    // Volts
-float iBatt = 0;  // mAmpers
-float vBatt = 0;    // Volts
+float iBatt = 0;  // Charging current - mAmpers
+float vBatt = 0;    // Battery voltage - Volts
 
 const int PWM = 23;   // corresponds to GPIO23
 const int pwm_channel = 6;
 const int frequency = 30000;   // Hz
 const int resolution = 8;
-int pwm = 255;
+int pwm = 0;
+bool charging = false;
+
+const float expected_charge_current = 10; // Constant charging current in mA (0.05C for 200mAh batteries) for trickle charge
+const float max_temperature = 45;     // Maximum temperature in °C
+const float max_voltage = 9.2;    // Maximum voltage for two 9V NiMH batteries in parallel
 
 // motor driver configuration
 int motorspeed_l = 33;
@@ -46,10 +49,9 @@ int rightMotors_pin2 = 14;
 int motorspeed_r = 12;
 
 // access for Dallas temperature sensors
-OneWire oneWire_s1(temperature_s1);
-OneWire oneWire_s2(temperature_s2);
-DallasTemperature sensor1(&oneWire_s1);
-DallasTemperature sensor2(&oneWire_s2);
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature sensors(&oneWire);
+DeviceAddress sensor1, sensor2;
 float temperature_batt1 = 0;
 float temperature_batt2 = 0;
 
@@ -58,7 +60,6 @@ const float divider_ratio = 0.2985;   // Voltage divider ratio based on resistan
 const char* control_keys[4] = {"/controls/control_up", "/controls/control_down", "/controls/control_left", "/controls/control_right"};
 int control_values[4];
 
-TaskHandle_t converterTaskHandle;
 TaskHandle_t firebaseTaskHandle;
 TaskHandle_t sensorTaskHandle;
 
@@ -161,26 +162,10 @@ void printData(void) {
   Serial.print("Input voltage:         "); Serial.print(input_voltage); Serial.println(" V");
   Serial.print("Battery Voltage:       "); Serial.print(vBatt); Serial.println(" V");
   Serial.print("Charging Current:      "); Serial.print(iBatt); Serial.println(" mA");
-  Serial.print("Battery 1 Temperature: "); Serial.print(temperature_batt1); Serial.println(" *C");
-  Serial.print("Battery 2 Temperature: "); Serial.print(temperature_batt2); Serial.println(" *C");
+  Serial.print("Battery 1 Temperature: "); Serial.print(temperature_batt1); Serial.println(" °C");
+  Serial.print("Battery 2 Temperature: "); Serial.print(temperature_batt2); Serial.println(" °C");
+  Serial.print("Charging:              "); Serial.println(charging);
   Serial.println();
-}
-
-void converterTask(void *parameters){
-  while(1){
-    if (expected_voltage > vBatt) {
-      pwm--;
-      pwm = constrain(pwm, 0, 254);
-    }
-
-    if (expected_voltage < vBatt) {
-      pwm++;
-      pwm = constrain(pwm, 0, 254);
-    }
-    ledcWrite(pwm_channel, pwm);
-    printData();
-    vTaskDelay(pdMS_TO_TICKS(100));
-  }
 }
 
 void sensorTask(void *parameters){
@@ -189,19 +174,47 @@ void sensorTask(void *parameters){
     iBatt = ina_219.getCurrent_mA();
     vBatt = ina_219.getBusVoltage_V() + (ina_219.getShuntVoltage_mV() / 1000);
 
-    sensor1.requestTemperatures();
-    sensor2.requestTemperatures();
-    temperature_batt1 = sensor1.getTempCByIndex(0);
-    temperature_batt2 = sensor2.getTempCByIndex(0);
+    sensors.requestTemperatures();
+    temperature_batt1 = sensors.getTempC(sensor1);
+    temperature_batt2 = sensors.getTempC(sensor2);
 
-    // Change priorities based on input_voltage and vBatt
-    if (input_voltage > 2) {
-      vTaskPrioritySet(converterTaskHandle, 3); // Higher priority
-      vTaskPrioritySet(firebaseTaskHandle, 1);  // Lower priority
+    //value of voltage needed to start the charge
+    if (input_voltage > 10){  
+      //temperature of the baterries "ok"
+      if(temperature_batt1 < max_temperature && temperature_batt2 < max_temperature){   
+        charging = true;
+        // Adjust task priorities based on charging status
+      }
     } else {
-      vTaskPrioritySet(converterTaskHandle, 1); // Lower priority
-      vTaskPrioritySet(firebaseTaskHandle, 3);  // Higher priority
+      charging = false;
+      // Adjust task priorities based on charging status
     }
+
+    // PWM control logic
+    if(charging){
+      if (expected_charge_current > iBatt) {
+        pwm++;
+        pwm = constrain(pwm, 0, 254);
+      }
+
+      if (expected_charge_current < iBatt) {
+        pwm--;
+        pwm = constrain(pwm, 0, 254);
+      }
+
+      if (temperature_batt1 > max_temperature || temperature_batt2 > max_temperature || vBatt >= max_voltage) {
+        Serial.println("Battery temperature too high or battery fully charged! Stopping charging.");
+        pwm = 0;
+        charging = false;
+      }
+
+      ledcWrite(pwm_channel, pwm);
+    } else {
+      pwm = 0;
+      ledcWrite(pwm_channel, pwm);
+    }
+
+    printData();
     vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
@@ -217,6 +230,7 @@ void firebaseTask(void *parameters){
         Firebase.RTDB.setFloat(&data, "/sensors/vBatt", vBatt);
         Firebase.RTDB.setFloat(&data, "/sensors/tBatt1", temperature_batt1);
         Firebase.RTDB.setFloat(&data, "/sensors/tBatt2", temperature_batt2);
+        Firebase.RTDB.setInt(&data, "/sensors/charging", charging);
       }
 
       // Receiving data from Firebase
@@ -231,6 +245,7 @@ void firebaseTask(void *parameters){
     } else {
       Serial.println("Firebase not ready!");
     }
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
@@ -256,8 +271,16 @@ void setup() {
   ledcSetup(pwm_channel, frequency, resolution);
   ledcAttachPin(PWM, pwm_channel);
 
-  sensor1.begin();
-  sensor2.begin();
+  sensors.begin();
+  sensors.setResolution(sensor1, 9);
+  sensors.setResolution(sensor2, 9);
+
+  if (!sensors.getAddress(sensor1, 0)) {
+    Serial.println("Failed to find temperature sensor 1!");
+  }
+  if (!sensors.getAddress(sensor2, 1)) {
+    Serial.println("Failed to find temperature sensor 2!");
+  }
 
   while (!ina_219.begin()) {
     Serial.print("Failed to find module ina_219!");
@@ -266,37 +289,13 @@ void setup() {
   ina_219.setCalibration_32V_2A();
   Serial.println("Measuring voltage and current with INA219 module...");
 
-  Serial.println("Scanning for sensors...");
-  for (int i = 0; i < sensor2.getDeviceCount(); i++) {
-    DeviceAddress tempDeviceAddress;
-    if (sensor1.getAddress(tempDeviceAddress, i)) {
-      Serial.print("Sensor ");
-      Serial.print(i);
-      Serial.print(" Address: ");
-      printAddress(tempDeviceAddress);
-      Serial.println();
-    } else {
-      Serial.println("No more addresses.");
-    }
-  }
-
-  xTaskCreatePinnedToCore(
-    converterTask,      // Task function
-    "PWM Control Task", // Name of the task
-    4096,              // Stack size
-    NULL,               // Task parameter
-    1,                  // Priority
-    &converterTaskHandle,// Task handle
-    0                   // Core where the task should run
-  );
-
   xTaskCreatePinnedToCore(
     sensorTask,              // Task function
     "Retrieve sensors data", // Name of the task
-    4096,                   // Stack size
+    4096,                    // Stack size
     NULL,                    // Task parameter
     2,                       // Priority
-    &sensorTaskHandle,        // Task handle
+    &sensorTaskHandle,       // Task handle
     0                        // Core where the task should run
   );
 
@@ -305,17 +304,10 @@ void setup() {
     "Firebase Task",   // Name of the task
     8192,             // Stack size 
     NULL,              // Task parameter
-    1,                 // Priority
+    2,                 // Priority
     &firebaseTaskHandle,// Task handle
     1                  // Core where the task should run
   );
-}
-
-void printAddress(DeviceAddress deviceAddress) {
-  for (uint8_t i = 0; i < 8; i++) {
-    if (deviceAddress[i] < 16) Serial.print("0");
-    Serial.print(deviceAddress[i], HEX);
-  }
 }
 
 void loop(void){
