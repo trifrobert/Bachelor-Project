@@ -1,0 +1,32 @@
+Buck Converter:
+https://www.youtube.com/watch?v=rwqY0rYPlVE&t=638s&ab_channel=Electronoobs
+https://www.youtube.com/watch?v=1oFlc4jv2-g&t=509s&ab_channel=CurioRes
+
+MPPT Controller:
+https://www.youtube.com/watch?v=28WZRZiZuS4&t=572s&ab_channel=Electronoobs
+
+Charging NiMH battery:
+https://www.youtube.com/watch?v=5B1sX7p5xXI&t=566s&ab_channel=GreatScott%21
+
+Sending data to Firebase:
+https://www.youtube.com/watch?v=gXVkjxdkrlI&t=2115s&ab_channel=TaylorGalbraith
+https://www.youtube.com/watch?v=aO92B-K4TnQ&t=1252s&ab_channel=EducationisLife
+
+Multithreading:
+https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
+
+Temperature sensors:
+https://randomnerdtutorials.com/esp32-ds18b20-temperature-arduino-ide/
+
+Current Module(INA219):
+https://www.youtube.com/watch?v=Q2OjWrSSvYU&ab_channel=Electronoobs
+
+Firebase Cloud Messaging:
+https://firebase.google.com/docs/cloud-messaging/android/client?authuser=0&hl=en
+
+Firebase ML:
+https://www.youtube.com/watch?v=fsv0rty7QhU&list=PLw5h0DiJ-9PBwFUwTs8_gPhunRCiYm_GK&ab_channel=Fireship
+
+
+Expo Build Setup:
+

@@ -26,5 +26,14 @@ Baterii NiMH:
 	-sunt cele mai slabe din punct de vedere raport dimensiune-energie livrata
 	-la incarcare ai nevoie doar de short-circuit and undevoltage protection
 	-metode de incarcare: Trickle Charge - curent constant cu o valoare de 1/20 din capacitatea bateriei
-	
+
+JavaScript promises used for Firebase Cloud Functions:
+	-a promise represent an asyncronus work that should eventually be completed
+	-when a work tracked by a promise is still executing, the promise is in a PENDING STATE
+	-if the work is executed correctly - PROMISE FULFILLED
+	-if there is an error - PROMISE REJECTED
+
+Rules for terminating a Cloud Function:
+	-HTTPS triggers - send a response to the end
+	-Background triggers - return a promise
 	
