@@ -1,27 +1,22 @@
-import React, { useEffect, useState } from 'react'
-import { View, ActivityIndicator } from 'react-native';
-
-import MainScreen from '../screens/MainScreen';
-import ControlScreen from '../screens/ControlScreen/ControlScreen';
-import StatusScreen from '../screens/StatusScreen/StatusScreen';
-
+import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createStackNavigator } from '@react-navigation/stack';
+import MainScreen from '../screens/MainScreen';
+import ControlScreen from '../screens/ControlScreen';
+import StatusScreen from '../screens/StatusScreen';
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
-const Navigation = () => { 
+const Navigation = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{headerShown : false}}>
-          <>
-            <Stack.Screen name='MainScreen' component={MainScreen}/>
-            <Stack.Screen name='ControlScreen' component={ControlScreen}/>
-            <Stack.Screen name='StatusScreen' component={StatusScreen}/>
-          </>
+      <Stack.Navigator initialRouteName="MainScreen">
+        <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ControlScreen" component={ControlScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="StatusScreen" component={StatusScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </NavigationContainer>
-  )
-}
+  );
+};
 
-export default Navigation
+export default Navigation;

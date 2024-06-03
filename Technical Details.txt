@@ -37,3 +37,9 @@ Rules for terminating a Cloud Function:
 	-HTTPS triggers - send a response to the end
 	-Background triggers - return a promise
 	
+Expo Info:
+	-Expo is an open-source project that gives developers powerful tools to assist in building and maintaining React Native apps at any scale.
+	-Expo Application Services (EAS) is a suite of hosted services that you can use with Expo and React Native projects to:
+		-Build, submit, and update your app
+		-Set up automation around all of these processes
+		-Collaborate with your team

@@ -27,6 +27,12 @@ https://firebase.google.com/docs/cloud-messaging/android/client?authuser=0&hl=en
 Firebase ML:
 https://www.youtube.com/watch?v=fsv0rty7QhU&list=PLw5h0DiJ-9PBwFUwTs8_gPhunRCiYm_GK&ab_channel=Fireship
 
+Development Build with Expo:
+https://docs.expo.dev/develop/development-builds/create-a-build/
 
-Expo Build Setup:
+cd95f3fa-91c8-4571-80e4-60234eb9ddac
+
+
+
+
 
