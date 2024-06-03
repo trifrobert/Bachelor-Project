@@ -33,3 +33,7 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# json keys
+google-services.json
+esp32-car-data-firebase-adminsdk-mqj0m-d55b5c39f4.json
