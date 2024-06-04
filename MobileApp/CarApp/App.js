@@ -4,9 +4,15 @@ import { StyleSheet, View, Platform, Alert } from 'react-native';
 import Navigation from './src/navigation';
 import { enableScreens } from 'react-native-screens';
 
+import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { PermissionsAndroid } from 'react-native';
+
+import { db } from './firebase';
+import { ref, set } from 'firebase/database'; 
+
+enableScreens();
 
 async function requestAndroidPermissions() {
   try {
@@ -28,8 +34,6 @@ async function requestAndroidPermissions() {
   }
 }
 
-enableScreens();
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -44,14 +48,23 @@ function handleRegistrationError(errorMessage) {
 }
 
 export default function App() {
-  const [expoPushToken, setExpoPushToken] = useState("");
+
+  const saveTokenToDatabase = (token) => {
+    set(ref(db, `token`), token)
+      .then(() => {
+        console.log('Token saved successfully inside RTDB!');
+      })
+      .catch((error) => {
+        console.error('Error saving token:', error);
+      });
+  };
 
   useEffect(() => {
     console.log("Registering for push notifications...");
     registerForPushNotificationsAsync()
       .then((token) => {
         console.log("token: ", token);
-        setExpoPushToken(token);
+        saveTokenToDatabase(token);
       })
       .catch((err) => console.log(err));
   }, []);
@@ -82,7 +95,9 @@ export default function App() {
         return;
       }
 
-      const projectId = "cd95f3fa-91c8-4571-80e4-60234eb9ddac";
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
       if (!projectId) {
         handleRegistrationError('Project ID not found');
       }
@@ -92,7 +107,6 @@ export default function App() {
             projectId,
           })
         ).data;
-        console.log(token);
       } catch (e) {
         handleRegistrationError(`${e}`);
       }
