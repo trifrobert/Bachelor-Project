@@ -43,3 +43,8 @@ Expo Info:
 		-Build, submit, and update your app
 		-Set up automation around all of these processes
 		-Collaborate with your team
+
+
+For Machine Learning:
+-Understand the problem: -How can I predict the lifespan of a battery using charging parameters? 
+-Identify Key Metrics: 

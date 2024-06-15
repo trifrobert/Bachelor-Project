@@ -28,6 +28,7 @@ Adafruit_INA219 ina_219;  // instance of current module
 float input_voltage = 0;    // Volts
 float iBatt = 0;  // Charging current - mAmpers
 float vBatt = 0;    // Battery voltage - Volts
+float power = 0;  //charging power - mW
 
 const int PWM = 23;   // corresponds to GPIO23
 const int pwm_channel = 6;
@@ -162,6 +163,7 @@ void printData(void) {
   Serial.print("Input voltage:         "); Serial.print(input_voltage); Serial.println(" V");
   Serial.print("Battery Voltage:       "); Serial.print(vBatt); Serial.println(" V");
   Serial.print("Charging Current:      "); Serial.print(iBatt); Serial.println(" mA");
+  Serial.print("Power:                 "); Serial.print(power); Serial.println(" mW");
   Serial.print("Battery 1 Temperature: "); Serial.print(temperature_batt1); Serial.println(" °C");
   Serial.print("Battery 2 Temperature: "); Serial.print(temperature_batt2); Serial.println(" °C");
   Serial.print("Charging:              "); Serial.println(charging);
@@ -173,6 +175,7 @@ void sensorTask(void *parameters){
     input_voltage = getInputVoltage(10, 3.3);
     iBatt = ina_219.getCurrent_mA();
     vBatt = ina_219.getBusVoltage_V() + (ina_219.getShuntVoltage_mV() / 1000);
+    power = ina_219.getPower_mW(); 
 
     sensors.requestTemperatures();
     temperature_batt1 = sensors.getTempC(sensor1);
@@ -231,6 +234,7 @@ void firebaseTask(void *parameters){
         Firebase.RTDB.setFloat(&data, "/sensors/tBatt1", temperature_batt1);
         Firebase.RTDB.setFloat(&data, "/sensors/tBatt2", temperature_batt2);
         Firebase.RTDB.setInt(&data, "/sensors/charging", charging);
+        Firebase.RTDB.setInt(&data, "/sensors/power", power);
       }
 
       // Receiving data from Firebase
