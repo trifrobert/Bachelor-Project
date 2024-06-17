@@ -7,7 +7,6 @@ import StatusScreen from '../screens/StatusScreen';
 
 import * as Notifications from 'expo-notifications';
 
-
 const Stack = createStackNavigator();
 
 const Navigation = () => {

@@ -73,7 +73,11 @@ export default function App() {
     let token;
 
     if (Platform.OS === "android") {
-      await requestAndroidPermissions();
+      const existingStatus = await Notifications.getPermissionsAsync();
+      if (existingStatus.status !== "granted") {
+        await requestAndroidPermissions();
+      }
+
       await Notifications.setNotificationChannelAsync("default", {
         name: "default",
         importance: Notifications.AndroidImportance.MAX,
@@ -83,8 +87,7 @@ export default function App() {
     }
 
     if (Device.isDevice) {
-      const { status: existingStatus } =
-        await Notifications.getPermissionsAsync();
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
       if (existingStatus !== "granted") {
         const { status } = await Notifications.requestPermissionsAsync();
@@ -95,18 +98,12 @@ export default function App() {
         return;
       }
 
-      const projectId =
-        Constants?.expoConfig?.extra?.eas?.projectId ??
-        Constants?.easConfig?.projectId;
+      const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
       if (!projectId) {
         handleRegistrationError('Project ID not found');
       }
       try {
-        token = (
-          await Notifications.getExpoPushTokenAsync({
-            projectId,
-          })
-        ).data;
+        token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
       } catch (e) {
         handleRegistrationError(`${e}`);
       }
