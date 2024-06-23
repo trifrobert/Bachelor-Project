@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import MainScreen from '../screens/MainScreen';
 import ControlScreen from '../screens/ControlScreen';
 import StatusScreen from '../screens/StatusScreen';
@@ -10,7 +10,6 @@ import * as Notifications from 'expo-notifications';
 const Stack = createStackNavigator();
 
 const Navigation = () => {
-
   const navigationRef = useRef(null);
 
   useEffect(() => {
@@ -26,10 +25,31 @@ const Navigation = () => {
 
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator initialRouteName="MainScreen">
-        <Stack.Screen name="MainScreen" component={MainScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="ControlScreen" component={ControlScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="StatusScreen" component={StatusScreen} options={{ headerShown: false }} />
+      <Stack.Navigator
+        initialRouteName="MainScreen"
+        screenOptions={{
+          headerShown: false,
+          gestureEnabled: true,
+          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+          transitionSpec: {
+            open: {
+              animation: 'timing',
+              config: {
+                duration: 300,
+              },
+            },
+            close: {
+              animation: 'timing',
+              config: {
+                duration: 300,
+              },
+            },
+          },
+        }}
+      >
+        <Stack.Screen name="MainScreen" component={MainScreen} />
+        <Stack.Screen name="ControlScreen" component={ControlScreen} />
+        <Stack.Screen name="StatusScreen" component={StatusScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

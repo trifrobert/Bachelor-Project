@@ -128,7 +128,7 @@ exports.batteryLevelNotification = functions.database.ref("/sensors/vBatt")
     });
 
 const CRITICAL_THRESHOLD = 50;
-const WARNING_THRESHOLD = 35;
+const WARNING_THRESHOLD = 40;
 const TEMP_MIN_INTERVAL = 10 * 60 * 1000; // 10 minutes
 
 /**
